@@ -26,7 +26,7 @@ function start() {
 
     if (obj.line) {
       obj.message = obj.line;
-      delete obj[line];
+      delete obj.line;
     }
     else if (obj.type) {
       obj.message = "[Docker event] host=\""+obj.host+"\" name=\""+obj.name+"\" event=\""+obj.type+"\"";
