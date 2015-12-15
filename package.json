@@ -1,0 +1,15 @@
+{
+  "name": "logmatic-docker",
+  "version": "0.0.1",
+  "description": "Gather all the logs of your docker containers and stream them to Logmatic.io",
+  "main": "index.js",
+  "author": "Logmatic.io <support@logmatic.io",
+  "license": "MIT",
+  "dependencies": {
+    "docker-allcontainers": "0.4.0",
+    "docker-event-log": "0.1.3",
+    "docker-loghose": "0.7.0",
+    "end-of-stream": "1.1.0",
+    "through2": "2.0.0"
+  }
+}
