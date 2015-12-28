@@ -8,21 +8,72 @@ var through = require('through2');
 var allContainers = require('docker-allcontainers');
 var logFactory = require('docker-loghose');
 var eventsFactory = require('docker-event-log');
+var minimist = require('minimist');
 
-function start() {
+
+function parseOptions(){
   var apiKey = process.argv[2];
+
   if(apiKey==null){
-    console.log('You must define your Logmatic.io\'s api key as a first argument.');
+    console.log('You must define your Logmatic.io\'s api key as a first argument.\n' +
+      '> logmatic-docker [apiKey] \n' +
+                '   [-a ATTR (eg myattribute="my attribute")]\n' +
+                '   [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]\n' +
+                '   [--matchByImage REGEXP] [--matchByName REGEXP]\n' +
+                '   [--skipByImage REGEXP] [--skipByName REGEXP]')
     process.exit(1);
   }
 
-  var opts = {
-      server: 'api.logmatic.io',
-      port: '10514',
-      apiKey: apiKey,
-  };
+  var opts = minimist(process.argv.slice(3),{
+              boolean: ["debug"],
+              alias: {
+                attr: "a",
+                host: "h",
+                port: "p"
+              },
+              default:{
+                newline: true,
+                host: 'api.logmatic.io',
+                port: '10514',
+                apiKey: apiKey
+              }
+            });
+
+  //Parse extra attributes
+  if(opts.attr){
+    if(!Array.isArray(opts.attr)){
+      opts.attr = [opts.attr];
+    }
+    var extra_attributes = {};
+    for (var i in opts.attr) {
+      var keyvalue = opts.attr[i].split('=');
+      extra_attributes[keyvalue[0]] = keyvalue[1];
+    }
+    opts.attr = extra_attributes;
+  }
+
+  if(opts.debug){
+    console.log("> Options:\n",opts);
+  }
+  return opts;
+}
+
+function merge(object, into) {
+    if (!object) { return; }
+
+    var key;
+    for (key in object) {
+      if (object.hasOwnProperty(key)) {
+        into[key] = object[key];
+    }
+  }
+}
+
+function start() {
+  var opts = parseOptions();
 
   var filter = through.obj(function(obj, enc, cb) {
+    merge(opts.attr,obj);
 
     if (obj.line) {
       obj.message = obj.line;
@@ -32,7 +83,11 @@ function start() {
       obj.message = "[Docker event] host=\""+obj.host+"\" name=\""+obj.name+"\" event=\""+obj.type+"\"";
     }
 
-    this.push(apiKey);
+    if(opts.debug){
+      console.log("> Send entry:\n",obj);
+    }
+
+    this.push(opts.apiKey);
     this.push(' ');
     this.push(JSON.stringify(obj));
     this.push('\n');
@@ -73,7 +128,7 @@ function start() {
       filter.unpipe(out);
     }
 
-    out = net.createConnection(opts.port, opts.server);
+    out = net.createConnection(opts.port, opts.host);
     filter.pipe(out, { end: false });
     noRestart = eos(out, pipe);
   }

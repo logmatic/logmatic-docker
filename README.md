@@ -15,6 +15,28 @@ The mapping to the docker socket is really important as this is why we are able 
 
 Nothing more to do.
 
+# Options
+
+Several options are allowed after the api key.
+
+```
+> logmatic-docker [apiKey]
+   [-a ATTR (eg myattribute="my attribute")]
+   [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]
+   [--matchByImage REGEXP] [--matchByName REGEXP]
+   [--skipByImage REGEXP] [--skipByName REGEXP]
+```
+
+## Add extra attributes
+
+You can add extra attributes to all the pushed entries by chaining the option "--attr" or "-a".
+
+## Match / Skip by name or image
+
+If you don't want all your containers to send log entries to Logmatic.io you can user the options `--matchByImage`, `--matchByName`, `--skipByImage` or `--skipByName`.
+
+However, use one inclusion/exclusion policy as these options cannot live together.
+
 # What are the data sent to Logmatic.io?
 
 This container sends 2 things:
