@@ -37,7 +37,7 @@ If you don't want all your containers to send log entries to Logmatic.io you can
 
 However, use one inclusion/exclusion policy as these options cannot live together.
 
-# What are the data sent to Logmatic.io?
+# What are the data types sent to Logmatic.io?
 
 This container sends 2 things:
 
