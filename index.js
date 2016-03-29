@@ -7,8 +7,11 @@ var eos = require('end-of-stream');
 var through = require('through2');
 var allContainers = require('docker-allcontainers');
 var logFactory = require('docker-loghose');
+var statsFactory = require('docker-stats');
 var eventsFactory = require('docker-event-log');
 var minimist = require('minimist');
+
+var statsFactory = require('docker-stats');
 
 
 function parseOptions(){
@@ -17,25 +20,30 @@ function parseOptions(){
   if(apiKey==null){
     console.log('You must define your Logmatic.io\'s api key as a first argument.\n' +
       '> logmatic-docker [apiKey] \n' +
+                '   [--stats] [-i statsInterval]\n' +
                 '   [-a ATTR (eg myattribute="my attribute")]\n' +
                 '   [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]\n' +
                 '   [--matchByImage REGEXP] [--matchByName REGEXP]\n' +
-                '   [--skipByImage REGEXP] [--skipByName REGEXP]')
+                '   [--skipByImage REGEXP] [--skipByName REGEXP]\n')
+
     process.exit(1);
   }
 
   var opts = minimist(process.argv.slice(3),{
-              boolean: ["debug"],
+              boolean: ["debug", "stats"],
               alias: {
                 attr: "a",
                 host: "h",
-                port: "p"
+                port: "p",
+                statsinterval: 'i'
               },
               default:{
                 newline: true,
+                stats: false,
                 host: 'api.logmatic.io',
                 port: '10514',
-                apiKey: apiKey
+                apiKey: apiKey,
+                statsinterval: 30
               }
             });
 
@@ -101,6 +109,12 @@ function start() {
   var loghose = logFactory(opts);
   loghose.pipe(filter);
   streamsOpened++;
+
+  if (opts.stats) {
+      var stats = statsFactory(opts);
+      stats.pipe(filter);
+      streamsOpened++;
+  }
 
   var dockerEvents = eventsFactory(opts);
   dockerEvents.pipe(filter);

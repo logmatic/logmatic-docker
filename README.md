@@ -21,11 +21,17 @@ Several options are allowed after the api key.
 
 ```
 > logmatic-docker [apiKey]
+   [--stats] [-i statsInterval]
    [-a ATTR (eg myattribute="my attribute")] //Several times ok
    [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]
    [--matchByImage REGEXP] [--matchByName REGEXP]
    [--skipByImage REGEXP] [--skipByName REGEXP]
 ```
+
+## Enable docker container stats
+
+You can enable container stats for each container using `--stats` and `-i statsInterval` (set to
+30 seconds by default).
 
 ## Add extra attributes
 
