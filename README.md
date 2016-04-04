@@ -21,17 +21,14 @@ Several options are allowed after the api key.
 
 ```
 > logmatic-docker [apiKey]
-   [--stats] [-i statsInterval]
    [-a ATTR (eg myattribute="my attribute")] //Several times ok
    [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]
    [--matchByImage REGEXP] [--matchByName REGEXP]
    [--skipByImage REGEXP] [--skipByName REGEXP]
+   [--no-events]
+   [--no-stats] [-i SECONDS (default 30s)]
 ```
 
-## Enable docker container stats
-
-You can enable container stats for each container using `--stats` and `-i statsInterval` (set to
-30 seconds by default).
 
 ## Add extra attributes
 
@@ -42,6 +39,17 @@ You can add extra attributes to all the pushed entries by chaining the option "-
 If you don't want all your containers to send log entries to Logmatic.io you can user the options `--matchByImage`, `--matchByName`, `--skipByImage` or `--skipByName`.
 
 However, use one inclusion/exclusion policy as these options cannot live together.
+
+
+## Disable docker container stats
+
+You can disable container stats for each container using `--no-stats`. You can also set the interval with `-i statsInterval` (set to
+30 seconds by default).
+
+
+## Disable docker events
+
+You can disable container events for each container using `--no-events`
 
 # What are the data types sent to Logmatic.io?
 

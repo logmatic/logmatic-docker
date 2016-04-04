@@ -20,17 +20,18 @@ function parseOptions(){
   if(apiKey==null){
     console.log('You must define your Logmatic.io\'s api key as a first argument.\n' +
       '> logmatic-docker [apiKey] \n' +
-                '   [--stats] [-i statsInterval]\n' +
                 '   [-a ATTR (eg myattribute="my attribute")]\n' +
                 '   [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]\n' +
                 '   [--matchByImage REGEXP] [--matchByName REGEXP]\n' +
-                '   [--skipByImage REGEXP] [--skipByName REGEXP]\n')
+                '   [--skipByImage REGEXP] [--skipByName REGEXP]\n' +
+                '   [--no-events]\n' +
+                '   [--no-stats] [-i statsInterval]\n')
 
     process.exit(1);
   }
 
   var opts = minimist(process.argv.slice(3),{
-              boolean: ["debug", "stats"],
+              boolean: ["debug", "stats", "events"],
               alias: {
                 attr: "a",
                 host: "h",
@@ -39,7 +40,8 @@ function parseOptions(){
               },
               default:{
                 newline: true,
-                stats: false,
+                stats: true,
+                events: true,
                 host: 'api.logmatic.io',
                 port: '10514',
                 apiKey: apiKey,
@@ -116,9 +118,11 @@ function start() {
       streamsOpened++;
   }
 
-  var dockerEvents = eventsFactory(opts);
-  dockerEvents.pipe(filter);
-  streamsOpened++;
+  if (opts.events) {
+      var dockerEvents = eventsFactory(opts);
+      dockerEvents.pipe(filter);
+      streamsOpened++;
+  }
 
   pipe();
 
