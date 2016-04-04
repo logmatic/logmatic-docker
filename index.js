@@ -22,14 +22,14 @@ function parseOptions(){
                 '   [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]\n' +
                 '   [--matchByImage REGEXP] [--matchByName REGEXP]\n' +
                 '   [--skipByImage REGEXP] [--skipByName REGEXP]\n' +
-                '   [--no-events]\n' +
+                '   [--no-dockerEvents]\n' +
                 '   [--no-stats] [-i statsInterval]\n')
 
     process.exit(1);
   }
 
   var opts = minimist(process.argv.slice(3),{
-              boolean: ["debug", "stats", "events"],
+              boolean: ["debug", "stats", "dockerEvents"],
               alias: {
                 attr: "a",
                 host: "h",
@@ -39,7 +39,7 @@ function parseOptions(){
               default:{
                 newline: true,
                 stats: true,
-                events: true,
+                dockerEvents: true,
                 host: 'api.logmatic.io',
                 port: '10514',
                 apiKey: apiKey,
@@ -116,7 +116,8 @@ function start() {
       streamsOpened++;
   }
 
-  if (opts.events) {
+
+  if (opts.dockerEvents) {
       var dockerEvents = eventsFactory(opts);
       dockerEvents.pipe(filter);
       streamsOpened++;
