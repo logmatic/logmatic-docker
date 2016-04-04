@@ -25,7 +25,7 @@ Several options are allowed after the api key.
    [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]
    [--matchByImage REGEXP] [--matchByName REGEXP]
    [--skipByImage REGEXP] [--skipByName REGEXP]
-   [--no-events]
+   [--no-dockerEvents]
    [--no-stats] [-i SECONDS (default 30s)]
 ```
 
@@ -49,7 +49,7 @@ You can disable container stats for each container using `--no-stats`. You can a
 
 ## Disable docker events
 
-You can disable container events for each container using `--no-events`
+You can disable container events for each container using `--no-dockerEvents`
 
 # What are the data types sent to Logmatic.io?
 
