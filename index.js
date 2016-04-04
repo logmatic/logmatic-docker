@@ -7,6 +7,7 @@ var eos = require('end-of-stream');
 var through = require('through2');
 var allContainers = require('docker-allcontainers');
 var logFactory = require('docker-loghose');
+var statsFactory = require('docker-stats');
 var eventsFactory = require('docker-event-log');
 var minimist = require('minimist');
 
@@ -20,22 +21,29 @@ function parseOptions(){
                 '   [-a ATTR (eg myattribute="my attribute")]\n' +
                 '   [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]\n' +
                 '   [--matchByImage REGEXP] [--matchByName REGEXP]\n' +
-                '   [--skipByImage REGEXP] [--skipByName REGEXP]')
+                '   [--skipByImage REGEXP] [--skipByName REGEXP]\n' +
+                '   [--no-events]\n' +
+                '   [--no-stats] [-i statsInterval]\n')
+
     process.exit(1);
   }
 
   var opts = minimist(process.argv.slice(3),{
-              boolean: ["debug"],
+              boolean: ["debug", "stats", "events"],
               alias: {
                 attr: "a",
                 host: "h",
-                port: "p"
+                port: "p",
+                statsinterval: 'i'
               },
               default:{
                 newline: true,
+                stats: true,
+                events: true,
                 host: 'api.logmatic.io',
                 port: '10514',
-                apiKey: apiKey
+                apiKey: apiKey,
+                statsinterval: 30
               }
             });
 
@@ -102,9 +110,17 @@ function start() {
   loghose.pipe(filter);
   streamsOpened++;
 
-  var dockerEvents = eventsFactory(opts);
-  dockerEvents.pipe(filter);
-  streamsOpened++;
+  if (opts.stats) {
+      var stats = statsFactory(opts);
+      stats.pipe(filter);
+      streamsOpened++;
+  }
+
+  if (opts.events) {
+      var dockerEvents = eventsFactory(opts);
+      dockerEvents.pipe(filter);
+      streamsOpened++;
+  }
 
   pipe();
 
