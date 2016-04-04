@@ -11,8 +11,6 @@ var statsFactory = require('docker-stats');
 var eventsFactory = require('docker-event-log');
 var minimist = require('minimist');
 
-var statsFactory = require('docker-stats');
-
 
 function parseOptions(){
   var apiKey = process.argv[2];
