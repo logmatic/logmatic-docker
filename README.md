@@ -1,4 +1,6 @@
 # logmatic-docker
+*Link to the [Logmatic.io documentation](http://doc.logmatic.io/docs/docker)*
+
 The Logmatic.io's container finds all your running containers' logs and stream it to your platform
 
 # Use the image available on docker hub
