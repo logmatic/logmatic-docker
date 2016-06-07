@@ -23,6 +23,7 @@ function parseOptions(){
                 '   [--matchByImage REGEXP] [--matchByName REGEXP]\n' +
                 '   [--skipByImage REGEXP] [--skipByName REGEXP]\n' +
                 '   [--no-dockerEvents]\n' +
+                '   [--no-logs]\n' +
                 '   [--no-stats] [-i statsInterval]\n')
 
     process.exit(1);
@@ -39,6 +40,7 @@ function parseOptions(){
               default:{
                 newline: true,
                 stats: true,
+                logs: true,
                 dockerEvents: true,
                 host: 'api.logmatic.io',
                 port: '10514',
@@ -106,9 +108,11 @@ function start() {
   var events = allContainers(opts);
   var streamsOpened = 0;
 
-  var loghose = logFactory(opts);
-  loghose.pipe(filter);
-  streamsOpened++;
+  if (opts.logs) {
+      var loghose = logFactory(opts);
+      loghose.pipe(filter);
+      streamsOpened++;
+  }
 
   if (opts.stats) {
       var stats = statsFactory(opts);
