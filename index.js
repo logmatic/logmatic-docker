@@ -20,6 +20,7 @@ function parseOptions(){
       '> logmatic-docker [apiKey] \n' +
                 '   [-a ATTR (eg myattribute="my attribute")]\n' +
                 '   [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]\n' +
+                '   [--namespace NAMESPACE (default "docker")]' +
                 '   [--matchByImage REGEXP] [--matchByName REGEXP]\n' +
                 '   [--skipByImage REGEXP] [--skipByName REGEXP]\n' +
                 '   [--no-dockerEvents]\n' +
@@ -41,6 +42,7 @@ function parseOptions(){
                 newline: true,
                 stats: true,
                 logs: true,
+                namespace: "docker",
                 dockerEvents: true,
                 host: 'api.logmatic.io',
                 port: '10514',
@@ -85,13 +87,32 @@ function start() {
   var filter = through.obj(function(obj, enc, cb) {
     merge(opts.attr,obj);
 
+    //Compute message
+    var message;
     if (obj.line) {
-      obj.message = obj.line;
+      obj.data_type = "log";
+      message = obj.line;
       delete obj.line;
+    } else if (obj.type) {
+      obj.data_type = "event";
+      message = "[Docker event] host=\""+obj.host+"\" name=\""+obj.name+"\" event=\""+obj.type+"\"";
+    } else if (obj.stats) {
+      obj.data_type = "stats";
+
+      //Compute mem pct
+      obj.stats.memory_stats.memory_percent = obj.stats.memory_stats.usage/obj.stats.memory_stats.limit;
+
+      message = "[Docker stats] host=\""+obj.image+"\" name=\""+obj.name+"\" main stats: [cpu%=" + Math.floor((obj.stats.cpu_stats.cpu_usage.cpu_percent*10000)/100)+ "% mem%="+Math.floor((obj.stats.memory_stats.memory_percent*10000)/100)+"%]";
     }
-    else if (obj.type) {
-      obj.message = "[Docker event] host=\""+obj.host+"\" name=\""+obj.name+"\" event=\""+obj.type+"\"";
+
+    //Handle namespacing
+    if(opts.namespace){
+        var newObj = {};
+        newObj[opts.namespace] = obj;
+        obj = newObj;
     }
+
+    obj.message = message;
 
     if(opts.debug){
       console.log("> Send entry:\n",obj);
