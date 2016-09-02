@@ -25,7 +25,7 @@ Several options are allowed after the api key.
 > logmatic-docker [apiKey]
    [-a ATTR (eg myattribute="my attribute")] //Several times ok
    [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]
-   [--namespace NAMESPACE (default "docker")]'
+   [--namespace NAMESPACE (default "docker")]
    [--matchByImage REGEXP] [--matchByName REGEXP]
    [--skipByImage REGEXP] [--skipByName REGEXP]
    [--no-dockerEvents]
