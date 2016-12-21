@@ -29,6 +29,7 @@ Several options are allowed after the api key.
    [--matchByImage REGEXP] [--matchByName REGEXP]
    [--skipByImage REGEXP] [--skipByName REGEXP]
    [--no-dockerEvents]
+   [--no-logs]
    [--no-stats] [-i SECONDS (default 30s)]
 ```
 
@@ -43,15 +44,18 @@ If you don't want all your containers to send log entries to Logmatic.io you can
 
 However, use one inclusion/exclusion policy as these options cannot live together.
 
+## Disable docker events
+
+You can disable container events for each container using `--no-dockerEvents`.
+
+## Disable docker logs
+
+You can disable container logs using `--no-logs`.
 
 ## Disable docker container stats
 
 You can disable container stats for each container using `--no-stats`. You can also set the interval with `-i statsInterval` (set to
 30 seconds by default).
-
-## Disable docker events
-
-You can disable container events for each container using `--no-dockerEvents`
 
 ## Namespace the docker attributes
 
