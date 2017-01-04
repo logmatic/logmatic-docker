@@ -1,15 +1,13 @@
-FROM alpine:latest
-MAINTAINER Logmatic.io <support@logmatic.io>
+FROM python:3.5.2-alpine
 
-# Install nodejs
-RUN apk -U add nodejs && \
-    mkdir -p /usr/src/app
+# Update
+RUN apk add --update python py-pip
+RUN pip install logmatic-python && \
+    pip install docker
 
-WORKDIR /usr/src/app
-ADD package.json /usr/src/app/
+VOLUME [ "/var/run/docker.sock" ]
+ADD /agent /app/agent
 
-# Install the app
-RUN npm install
-ADD index.js /usr/src/app
+ADD main.py /app/
 
-ENTRYPOINT ["/usr/src/app/index.js"]
+ENTRYPOINT ["python",  "/app/main.py"]

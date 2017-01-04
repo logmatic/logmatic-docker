@@ -22,15 +22,40 @@ Nothing more to do.
 Several options are allowed after the api key.
 
 ```
-> logmatic-docker [apiKey]
-   [-a ATTR (eg myattribute="my attribute")] //Several times ok
-   [-h HOSTNAME (default "api.logmatic.io")] [-p PORT (default "10514")]
-   [--namespace NAMESPACE (default "docker")]
-   [--matchByImage REGEXP] [--matchByName REGEXP]
-   [--skipByImage REGEXP] [--skipByName REGEXP]
-   [--no-dockerEvents]
-   [--no-logs]
-   [--no-stats] [-i SECONDS (default 30s)]
+> usage: logmatic-docker [-h] [--logs] [--no-logs] [--stats] [--no-stats]
+                 [--no-detailed-stats] [--events] [--no-events] [--namespace NS]
+                 [--hostname HOSTNAME] [--port PORT] [--debug] [-i INTERVAL]
+                 [--attr ATTRS] [--docker-version VER] [--skipByImage REGEX]
+                 [--skipByName REGEX] [--matchByImage REGEX]
+                 [--matchByName REGEX] [--matchByLabel LABEL]
+                 LOGMATIC_API_KEY
+  
+  Send logs, events and stats to Logmatic.io
+  
+  positional arguments:
+    LOGMATIC_API_KEY      The Logmatic.io API key
+  
+  optional arguments:
+    -h, --help            show this help message and exit
+    --logs                Enable the logs streams
+    --no-logs             Disable the logs streams
+    --stats               Enable the stats streams
+    --no-stats            Disable the stats streams
+    --no-detailed-stats   Disable stats streams
+    --events              Enable the event stream
+    --no-events           Disable the event stream
+    --namespace NS        Default namespace
+    --hostname HOSTNAME   Logmatic.io's hostname (default api.logmatic.io)
+    --port PORT           Logmatic.io's port (default 10514)
+    --debug               Enable debugging
+    -i INTERVAL           Seconds between to stats report (default 30)
+    --attr ATTRS          eg myattribute="my attribute"
+    --docker-version VER  Force the Docker version to use
+    --skipByImage REGEX   Skip container by image name
+    --skipByName REGEX    Skip container by container name
+    --matchByImage REGEX  Match container by image name
+    --matchByName REGEX   Match container by container name
+    --matchByLabel LABEL  Format either "key" or "key=value"
 ```
 
 
@@ -38,24 +63,24 @@ Several options are allowed after the api key.
 
 You can add extra attributes to all the pushed entries by chaining the option "--attr" or "-a".
 
-## Match / Skip by name or image
+## Match / Skip by name, image or label
 
-If you don't want all your containers to send log entries to Logmatic.io you can user the options `--matchByImage`, `--matchByName`, `--skipByImage` or `--skipByName`.
+If you don't want all your containers to send log entries to Logmatic.io you can user the options
+`--matchByLabel`, `--matchByImage`, `--matchByName`, `--skipByImage` or `--skipByName`.
 
 However, use one inclusion/exclusion policy as these options cannot live together.
 
-## Disable docker events
-
-You can disable container events for each container using `--no-dockerEvents`.
-
-## Disable docker logs
-
-You can disable container logs using `--no-logs`.
 
 ## Disable docker container stats
 
-You can disable container stats for each container using `--no-stats`. You can also set the interval with `-i statsInterval` (set to
+You can disable container stats for each container using `--no-stats` or `--no-detailed-stats` if you want to keep only the
+a summary of the usage. You can also set the interval with `-i INTERVAL` (set to
 30 seconds by default).
+
+
+## Disable docker events
+
+You can disable container events for each container using `--no-events`
 
 ## Namespace the docker attributes
 
@@ -76,14 +101,18 @@ An NGINX log for instance would look like this:
 
 ```json
 {
-  "docker": {
-    "image": "nginx",
-    "id": "<container_id>",
-    "name": "<container_name",
-    "v": "<version>",
-    "data_type": "log",
-  },
-  "message": "192.168.99.1 - - [15/Dec/2015:17:36:50 +0000] \"GET / HTTP/1.1\" 304 0 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36\" \"-\""
+    "message": "192.168.99.1 - - [15/Dec/2015:17:36:50 +0000] \"GET / HTTP/1.1\" 304 0 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36\" \"-\"",
+    "docker": {
+      "image": "agileek/cpuset-test",
+      "hostname": "f307d28f60f4",
+      "daemon_name": "jarvis",
+      "created": "2016-12-21T15:04:27.6401807Z",
+      "name": "small_mahavira",
+      "id": "f307d28f60f4695e90bd108b3a3bbb6c9fbd4e896187966515b9d18d104f1730",
+      "short_id": "f307d28f60",
+      "status": "running",
+      "pid": 7931
+    }
 }
 ```
 
@@ -96,15 +125,15 @@ Docker events tells you the activity on your docker machine: create, kill, commi
 
 ```json
 {
-  "docker": {
-    "image": "<image_name>",
-    "id": "<container_id>",
-    "name": "<container_name>",
-    "host": "<your_host>",
-    "type": "create",
-    "data_type": "event"
-  },
-  "message": "[Docker event] host=\"a5900527eead577df14c7917e83f0b6ebeb7b3d103e44d0a93a1c05316c6d391\" name=\"boring_hypatia\" event=\"create\""
+    "message": "[Docker event] name:distracted_archimedes >> event:attach (image=ubuntu)",
+    "docker": {
+      "image": "ubuntu",
+      "daemon_name": "jarvis",
+      "name": "distracted_archimedes",
+      "id": "65254830bfa3604f487d1603d509d45886f37f83412c4b18f809d148c5f60c4c",
+      "event": "attach",
+      "status": "attach"
+    }
 }
 ```
 
@@ -114,16 +143,25 @@ Docker stats are all the metrics that matters by container. And there are a lot 
 
 ```json
 {
-  "docker": {
-    "image": "<image_name>",
-    "id": "<container_id>",
-    "name": "<container_name>",
-    "data_type": "stats",
-    "stats": {
-      "..."
-    }
-  },
-  "message": "[Docker stats] host=\"nginx\" name=\"berserk_fermi\" main stats: [cpu%=0% mem%=0%]"
+    "message": "[Docker stats] name:small_mahavira >>  cpu:199.59% mem:0.01% io:0.00MB/s net:0.00MB/s (host:f307d28f60f4 image:agileek/cpuset-test)",
+
+    "docker": {
+        "image": "agileek/cpuset-test",
+        "hostname": "f307d28f60f4",
+        "created": "2016-12-21T15:04:27.6401807Z",
+        "daemon_name": "jarvis",
+        "name": "small_mahavira",
+        "short_id": "f307d28f60",
+        "status": "running",
+        "pid": 7931,
+        "id": "f307d28f60f4695e90bd108b3a3bbb6c9fbd4e896187966515b9d18d104f1730",
+        "human_stats": { 
+          //computed stats, display as percent or MB/s
+        },
+        "stats": {
+          //raw stats,from the docker daemon
+        }
+  }
 }
 ```
 
