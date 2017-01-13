@@ -70,15 +70,22 @@ class AgentReporter:
             meta["@marker"].append("docker-stats")
             stats = container.stats(stream=False, decode=True)
             computed_stats = self.calculator.compute_human_stats(container, stats)
-            meta[self.args.ns]["stats"] = {}
             if detailed is True:
                 meta[self.args.ns]["stats"] = stats
+            else:
+                meta[self.args.ns]["stats"] = {
+                    "blkio_stats": {},
+                    "memory_stats": {},
+                    "cpu_stats": {},
+                    "networks": {}
+                }
 
             meta[self.args.ns]["stats"]["blkio_stats"].update(computed_stats["blkio_stats"])
             meta[self.args.ns]["stats"]["memory_stats"].update(computed_stats["memory_stats"])
             meta[self.args.ns]["stats"]["cpu_stats"].update(computed_stats["cpu_stats"])
-            meta[self.args.ns]["stats"]["networks"]["all"] = {}
             for interface in computed_stats["networks"]:
+                if interface not in meta[self.args.ns]["stats"]["networks"]:
+                    meta[self.args.ns]["stats"]["networks"][interface] = {}
                 meta[self.args.ns]["stats"]["networks"][interface].update(computed_stats["networks"][interface])
 
             message = ""
