@@ -69,21 +69,28 @@ class AgentReporter:
             meta = self._build_context(container)
             meta["@marker"].append("docker-stats")
             stats = container.stats(stream=False, decode=True)
-            human_stats = self.calculator.compute_human_stats(container, stats)
+            computed_stats = self.calculator.compute_human_stats(container, stats)
+            meta[self.args.ns]["stats"] = {}
             if detailed is True:
                 meta[self.args.ns]["stats"] = stats
-            meta[self.args.ns]["human_stats"] = human_stats
+
+            meta[self.args.ns]["stats"]["blkio_stats"].update(computed_stats["blkio_stats"])
+            meta[self.args.ns]["stats"]["memory_stats"].update(computed_stats["memory_stats"])
+            meta[self.args.ns]["stats"]["cpu_stats"].update(computed_stats["cpu_stats"])
+            meta[self.args.ns]["stats"]["networks"]["all"] = {}
+            for interface in computed_stats["networks"]:
+                meta[self.args.ns]["stats"]["networks"][interface].update(computed_stats["networks"][interface])
 
             message = ""
-            if "error" not in human_stats["cpu_stats"]:
-                message += " cpu:{:.2f}%".format(human_stats["cpu_stats"]["total_usage_%"] * 100.0)
-            if "error" not in human_stats["memory_stats"]:
-                message += " mem:{:.2f}%".format(human_stats["memory_stats"]["usage_%"] * 100.0)
-            if "error" not in human_stats["blkio_stats"]:
-                message += " io:{:.2f}MB/s".format(human_stats["blkio_stats"]["total_bps"] / 1000000.0)
-            if "error" not in human_stats["networks"]:
+            if "error" not in computed_stats["cpu_stats"]:
+                message += " cpu:{:.2f}%".format(computed_stats["cpu_stats"]["total_usage_pct"] * 100.0)
+            if "error" not in computed_stats["memory_stats"]:
+                message += " mem:{:.2f}%".format(computed_stats["memory_stats"]["usage_pct"] * 100.0)
+            if "error" not in computed_stats["blkio_stats"]:
+                message += " io:{:.2f}MB/s".format(computed_stats["blkio_stats"]["total_bps"] / 1000000.0)
+            if "error" not in computed_stats["networks"]:
                 message += " net:{:.2f}MB/s".format(
-                    (human_stats["networks"]["all"]["tx_bytes_ps"] + human_stats["networks"]["all"][
+                    (computed_stats["networks"]["all"]["tx_bytes_ps"] + computed_stats["networks"]["all"][
                         "rx_bytes_ps"]) / 1000000.0)
 
             self.logger.info(

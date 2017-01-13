@@ -40,10 +40,10 @@ class Calculator:
             kernel = (new["usage_in_kernelmode"] - old["usage_in_kernelmode"]) / 1000000000
 
             return {
-                "per_cpu_usage_%": per_cpu,
-                "total_usage_%": total,
-                "usage_in_kernelmode_%": kernel,
-                "usage_in_usermode_%": user
+                "per_cpu_usage_pct": per_cpu,
+                "total_usage_pct": total,
+                "usage_in_kernelmode_pct": kernel,
+                "usage_in_usermode_pct": user
             }
         except Exception as e:
             return {"error": "Couldn't compute CPU stats (API Version): " + str(e)}
@@ -51,7 +51,7 @@ class Calculator:
     def _compute_memory(self, stats):
         try:
             return {
-                "usage_%": stats["memory_stats"]["usage"] / stats["memory_stats"]["limit"],
+                "usage_pct": stats["memory_stats"]["usage"] / stats["memory_stats"]["limit"],
             }
         except Exception as e:
             return {"error": "Couldn't compute memory stats (API Version): " + str(e)}
