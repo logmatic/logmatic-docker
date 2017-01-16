@@ -1,6 +1,8 @@
 from datetime import datetime
 
+import logging
 
+logger = logging.getLogger()
 class Calculator:
     def __init__(self):
         self.datastore = {}
@@ -17,13 +19,10 @@ class Calculator:
     def compute_human_stats(self, container, stats, detailed):
 
         computed_stats = {}
-        if detailed is True:
-            computed_stats = stats
-        else:
-            computed_stats["blkio_stats"] = {}
-            computed_stats["networks"] = {}
-            computed_stats["memory_stats"] = {}
-            computed_stats["cpu_stats"] = {}
+        computed_stats["blkio_stats"] = stats["blkio_stats"] if detailed is True else {}
+        computed_stats["networks"] = stats["networks"] if detailed is True else {}
+        computed_stats["memory_stats"] = stats["memory_stats"] if detailed is True else {}
+        computed_stats["cpu_stats"] = stats["cpu_stats"] if detailed is True else {}
 
         # Add computed stats
         tick = datetime.strptime(stats["read"][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
@@ -60,6 +59,7 @@ class Calculator:
                 "usage_in_usermode_pct": user
             }
         except Exception as e:
+            logger.debug("CPU dump", meta=stats["cpu_stats"])
             return {"error": "Couldn't compute CPU stats (API Version): " + str(e)}
 
     def _compute_memory(self, stats):
@@ -68,6 +68,7 @@ class Calculator:
                 "usage_pct": stats["memory_stats"]["usage"] / stats["memory_stats"]["limit"],
             }
         except Exception as e:
+            logger.debug("Memory dump", meta=stats["memory_stats"])
             return {"error": "Couldn't compute memory stats (API Version): " + str(e)}
 
     def _compute_blkio(self, tick, c, stats):
@@ -96,6 +97,7 @@ class Calculator:
                 "total_iops": self._delta_meter_ps(c.short_id + ".blk.io.total", tick, summed["io"]["Total"])
             }
         except Exception as e:
+            logger.debug("Blkio dump", meta=stats["blkio_stats"])
             return {"error": "Couldn't compute BLKIO stats (API Version): " + str(e)}
 
     def _compute_network(self, tick, c, stats):
@@ -123,4 +125,5 @@ class Calculator:
             return network
 
         except Exception as e:
+            logger.debug("Network dump", meta=stats["networks"])
             return {"error": "Couldn't compute networks stats (API Version): " + str(e)}
