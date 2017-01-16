@@ -19,25 +19,28 @@ class Calculator:
 
     def compute_human_stats(self, container, stats, detailed):
 
-        logger.debug(stats)
-
-        computed_stats = {}
-        computed_stats["blkio_stats"] = stats["blkio_stats"] if detailed is True and "blkio_stats" in stats else {}
-        computed_stats["networks"] = stats["networks"] if detailed is True and "networks" in stats else {}
-        computed_stats["memory_stats"] = stats["memory_stats"] if detailed is True and "memory_stats" in stats else {}
-        computed_stats["cpu_stats"] = stats["cpu_stats"] if detailed is True and "cpu_stats" in stats else {}
-
         # Add computed stats
         tick = datetime.strptime(stats["read"][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
 
+        computed_stats = {
+            "blkio_stats": {},
+            "memory_stats": {},
+            "cpu_stats": {},
+            "networks": {}
+        }
+        if detailed is True:
+            computed_stats.update(stats)
+
+        # enrich stats
         computed_stats["blkio_stats"].update(self._compute_blkio(tick, container, stats))
         computed_stats["memory_stats"].update(self._compute_memory(stats))
         computed_stats["cpu_stats"].update(self._compute_cpu(stats))
-        net_stats = self._compute_network(tick, container, stats)
-        for interface in net_stats:
+
+        network_stats = self._compute_network(tick, container, stats)
+        for interface in network_stats:
             if interface not in computed_stats["networks"]:
                 computed_stats["networks"][interface] = {}
-            computed_stats["networks"][interface].update(net_stats[interface])
+            computed_stats["networks"][interface].update(network_stats[interface])
 
         return computed_stats
 
@@ -62,8 +65,7 @@ class Calculator:
                 "usage_in_usermode_pct": user
             }
         except Exception as e:
-            logger.debug(stats["cpu_stats"])
-            return {"error": "Couldn't compute CPU stats (API Version): " + str(e)}
+            return {"error": {"message": "Couldn't compute CPU stats (API Version): " + str(e)}}
 
     def _compute_memory(self, stats):
         try:
@@ -71,8 +73,7 @@ class Calculator:
                 "usage_pct": stats["memory_stats"]["usage"] / stats["memory_stats"]["limit"],
             }
         except Exception as e:
-            logger.debug(stats["memory_stats"])
-            return {"error": "Couldn't compute memory stats (API Version): " + str(e)}
+            return {"error": {"message": "Couldn't compute memory stats (API Version): " + str(e)}}
 
     def _compute_blkio(self, tick, c, stats):
 
@@ -100,8 +101,7 @@ class Calculator:
                 "total_iops": self._delta_meter_ps(c.short_id + ".blk.io.total", tick, summed["io"]["Total"])
             }
         except Exception as e:
-            logger.debug(stats["blkio_stats"])
-            return {"error": "Couldn't compute BLKIO stats (API Version): " + str(e)}
+            return {"error": {"message": "Couldn't compute BLKIO stats (API Version): " + str(e)}}
 
     def _compute_network(self, tick, c, stats):
         try:
@@ -128,5 +128,4 @@ class Calculator:
             return network
 
         except Exception as e:
-            logger.debug(stats["networks"])
-            return {"error": "Couldn't compute networks stats (API Version): " + str(e)}
+            return {"error": {"message": "Couldn't compute networks stats (API Version): " + str(e)}}
