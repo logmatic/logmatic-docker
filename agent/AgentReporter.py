@@ -14,7 +14,6 @@ class AgentReporter:
         self.logger = logger
         self.args = args
         self.calculator = Calculator()
-        self.local_cache = {}
         self.attrs = {}
         self.daemon_name = self.client.info()["Name"]
 
@@ -32,10 +31,7 @@ class AgentReporter:
             for event in events:
                 if event["Type"] == "container":
                     # get container meta
-                    if event["id"] not in self.local_cache:
-                        self._build_context(self.client.containers.get(event["id"]))
-
-                    meta = self.local_cache[event["id"]]
+                    meta = self._build_context(self.client.containers.get(event["id"]))
                     meta["@marker"] = ["docker", "docker-events"]
                     meta[self.args.ns]["event"] = event["Action"]
 
@@ -108,11 +104,6 @@ class AgentReporter:
         """Internal method, build the container context"""
         try:
 
-            # Checking the local cache
-            if container.id in self.local_cache:
-                meta = copy.deepcopy(self.local_cache[container.id])
-                meta[self.args.ns]["status"] = container.status
-                return meta
 
             # Concatenate all labels
             labels = {}
@@ -144,8 +135,6 @@ class AgentReporter:
             if len(self.attrs):
                 meta["attr"] = self.attrs
 
-            # Store in cache the object
-            self.local_cache[container.id] = copy.deepcopy(meta)
             return meta
 
         except Exception:
