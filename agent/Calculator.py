@@ -22,7 +22,7 @@ class Calculator:
         logger.debug(stats)
 
         computed_stats = {}
-        computed_stats["blkio_stats"] = stats["blkio_stats"] if detailed is True and "blkio_stats" in stats  else {}
+        computed_stats["blkio_stats"] = stats["blkio_stats"] if detailed is True and "blkio_stats" in stats else {}
         computed_stats["networks"] = stats["networks"] if detailed is True and "networks" in stats else {}
         computed_stats["memory_stats"] = stats["memory_stats"] if detailed is True and "memory_stats" in stats else {}
         computed_stats["cpu_stats"] = stats["cpu_stats"] if detailed is True and "cpu_stats" in stats else {}
