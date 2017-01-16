@@ -30,7 +30,7 @@ class Calculator:
 
         computed_stats["blkio_stats"].update(self._compute_blkio(tick, container, stats))
         computed_stats["memory_stats"].update(self._compute_memory(stats))
-        computed_stats["cpu_stats"].update( self._compute_cpu(stats))
+        computed_stats["cpu_stats"].update(self._compute_cpu(stats))
         net_stats = self._compute_network(tick, container, stats)
         for interface in net_stats:
             if interface not in computed_stats["networks"]:

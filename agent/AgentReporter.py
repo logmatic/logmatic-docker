@@ -23,20 +23,18 @@ class AgentReporter:
             else:
                 self.attrs[kv[0]] = ""
 
-        logger.info("Initialize a new agent reporter")
-
     def export_events(self):
         """Send events to Logmatic.io"""
         try:
             events = self.client.events(decode=True)
             for event in events:
-                if event["Type"] is "container":
+                if event["Type"] == "container":
                     # get container meta
                     if event["id"] not in self.local_cache:
                         self._build_context(self.client.containers.get(event["id"]))
 
                     meta = self.local_cache[event["id"]]
-                    meta["@marker"].append("docker-events")
+                    meta["@marker"] = ["docker", "docker-events"]
                     meta[self.args.ns]["event"] = event["Action"]
 
                     # send it to Logmatic.io
@@ -53,7 +51,7 @@ class AgentReporter:
         """Send container stats to Logmatic.io"""
         try:
             meta = self._build_context(container)
-            meta["@marker"].append("docker-stats")
+            meta["@marker"] = ["docker", "docker-stats"]
 
             # call the API
             stats = container.stats(stream=False, decode=True)
@@ -91,7 +89,7 @@ class AgentReporter:
         try:
             line = ""
             meta = self._build_context(container)
-            meta["@marker"].append("docker-logs")
+            meta["@marker"] = ["docker", "docker-logs"]
             logs = container.logs(stream=True, follow=True, stdout=True, stderr=False, tail=0)
             for chunk in logs:
                 # Append all char into a string until a \n
@@ -137,7 +135,6 @@ class AgentReporter:
                     "created": container.attrs["Created"],
                     "pid": container.attrs["State"]["Pid"]
                 },
-                "@marker": ["docker"],
                 "severity": "INFO"
             }
 

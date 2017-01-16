@@ -10,6 +10,7 @@ import logmatic
 
 from agent.AgentReporter import AgentReporter
 
+
 internal_logger = logging.getLogger()
 
 # Args parser settings
@@ -54,7 +55,6 @@ parser.set_defaults(match_image=None)
 parser.set_defaults(match_label=None)
 
 args = parser.parse_args()
-internal_logger.debug(args)
 
 # Initialise the logger for Logmatic.io
 logmatic_logger = logging.getLogger("docker-logmatic")
@@ -67,6 +67,9 @@ if args.debug is True:
     internal_logger.setLevel(logging.DEBUG)
     sys_handler = logging.StreamHandler(sys.stderr)
     internal_logger.addHandler(sys_handler)
+
+    internal_logger.debug(args)
+
 
 # Initialise the connection to the local daemon
 base_url = 'unix://var/run/docker.sock'
