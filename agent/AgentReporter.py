@@ -134,7 +134,7 @@ class AgentReporter:
             if len(self.attrs):
                 meta["attr"] = self.attrs
 
-            return meta
+            return meta.copy()
 
         except Exception:
             logger.exception("Unexpected error during the processing of stats")
