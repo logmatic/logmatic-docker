@@ -27,7 +27,7 @@ parser.add_argument("--hostname", dest='hostname', help="Logmatic.io's hostname 
 parser.add_argument("--port", dest='port', type=int, help="Logmatic.io's port (default 10514)")
 parser.add_argument("--debug", dest="debug", action="store_true", help="Enable debugging")
 parser.add_argument("-i", dest='interval', type=int, help="Seconds between to stats report (default 30)")
-parser.add_argument("--attr", dest="attrs", action='append', help="eg myattribute=\"my attribute\"")
+parser.add_argument("--attr", dest="attrs", action='append', help="eg my_attribute=\"my attribute\"")
 parser.add_argument("--docker-version", dest='docker_version', metavar="VER", help="Force the Docker version to use")
 parser.add_argument("--skipByImage", dest='skip_image', metavar="REGEX", help="Skip container by image name")
 parser.add_argument("--skipByName", dest='skip_name', metavar="REGEX", help="Skip container by container name")
@@ -65,7 +65,8 @@ logmatic_logger.setLevel(logging.DEBUG)
 
 if args.debug is True:
     internal_logger.setLevel(logging.DEBUG)
-    internal_logger.addHandler(logging.StreamHandler(sys.stderr))
+    sys_handler = logging.StreamHandler(sys.stderr)
+    internal_logger.addHandler(sys_handler)
 
 # Initialise the connection to the local daemon
 base_url = 'unix://var/run/docker.sock'

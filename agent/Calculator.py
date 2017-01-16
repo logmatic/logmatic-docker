@@ -14,16 +14,30 @@ class Calculator:
         self.datastore[key] = {"tick": new_tick, "value": new_value, "delta": delta}
         return delta
 
-    def compute_human_stats(self, container, stats):
+    def compute_human_stats(self, container, stats, detailed):
 
+        computed_stats = {}
+        if detailed is True:
+            computed_stats = stats
+        else:
+            computed_stats["blkio_stats"] = {}
+            computed_stats["networks"] = {}
+            computed_stats["memory_stats"] = {}
+            computed_stats["cpu_stats"] = {}
+
+        # Add computed stats
         tick = datetime.strptime(stats["read"][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
 
-        return {
-            "blkio_stats": self._compute_blkio(tick, container, stats),
-            "networks": self._compute_network(tick, container, stats),
-            "memory_stats": self._compute_memory(stats),
-            "cpu_stats": self._compute_cpu(stats)
-        }
+        computed_stats["blkio_stats"].update(self._compute_blkio(tick, container, stats))
+        computed_stats["memory_stats"].update(self._compute_memory(stats))
+        computed_stats["cpu_stats"].update( self._compute_cpu(stats))
+        net_stats = self._compute_network(tick, container, stats)
+        for interface in net_stats:
+            if interface not in computed_stats["networks"]:
+                computed_stats["networks"][interface] = {}
+            computed_stats["networks"][interface].update(net_stats[interface])
+
+        return computed_stats
 
     def _compute_cpu(self, stats):
         try:
