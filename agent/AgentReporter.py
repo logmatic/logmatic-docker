@@ -1,8 +1,6 @@
 import logging
 import re
 
-import copy
-
 from agent.Calculator import Calculator
 
 logger = logging.getLogger()
@@ -91,6 +89,8 @@ class AgentReporter:
             logs = container.logs(stream=True, follow=True, stdout=True, stderr=False, tail=0)
             for chunk in logs:
                 # Append all char into a string until a \n
+                if type(chunk) is not str:
+                    chunk = chunk.decode()
                 if chunk is not '\n':
                     line = line + chunk
                 else:
@@ -103,7 +103,6 @@ class AgentReporter:
     def _build_context(self, container):
         """Internal method, build the container context"""
         try:
-
 
             # Concatenate all labels
             labels = {}
