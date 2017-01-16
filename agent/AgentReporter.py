@@ -109,7 +109,7 @@ class AgentReporter:
             # Checking the local cache
             if container.id in self.local_cache:
                 meta = self.local_cache[container.id]
-                meta["status"] = container.status
+                meta[self.args.ns]["status"] = container.status
                 return meta
 
             # Concatenate all labels
