@@ -1,7 +1,7 @@
-FROM python:3.5.2-alpine
+FROM python:3.5.2
 
 # Update
-RUN apk add --update python py-pip
+RUN apt-get update; apt-get install -y python-pip
 RUN pip install logmatic-python && \
     pip install docker
 
