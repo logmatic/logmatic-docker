@@ -1,6 +1,8 @@
 import logging
 import re
 
+import copy
+
 from agent.Calculator import Calculator
 
 logger = logging.getLogger()
@@ -143,7 +145,7 @@ class AgentReporter:
                 meta["attr"] = self.attrs
 
             # Store in cache the object
-            self.local_cache[container.id] = meta.copy()
+            self.local_cache[container.id] = copy.deepcopy(meta)
             return meta
 
         except Exception:
