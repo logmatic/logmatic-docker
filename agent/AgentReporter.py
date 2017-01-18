@@ -14,6 +14,7 @@ class AgentReporter:
         self.calculator = Calculator()
         self.attrs = {}
         self.daemon_name = self.client.info()["Name"]
+        self.local_cache = {}
 
         for attr in args.attrs:
             kv = attr.split("=")
@@ -28,10 +29,10 @@ class AgentReporter:
             events = self.client.events(decode=True)
             for event in events:
                 if event["Type"] == "container":
-                    # get container meta
-                    meta = self._build_context(self.client.containers.get(event["id"]))
+                    meta = self._build_meta_from_event(event)
                     meta["@marker"] = ["docker", "docker-events"]
                     meta[self.args.ns]["event"] = event["Action"]
+                    meta[self.args.ns]["status"] = event["status"]
 
                     # send it to Logmatic.io
                     self.logger.info("[Docker event] name:{} >> event:{} (image={})"
@@ -148,11 +149,6 @@ class AgentReporter:
         """
         filtered = []
 
-        # Continue if no filter has been set
-        if not (self.args.skip_name or self.args.skip_image or self.args.match_name or self.args.match_image):
-            logger.debug("Filter // Keeping all containers")
-            return containers
-
         for c in containers:
             # skip container by image name
             if self.args.skip_image and re.search(self.args.skip_image, c.attrs["Config"]["Image"]):
@@ -167,7 +163,36 @@ class AgentReporter:
             if self.args.match_name and not re.search(self.args.match_name, c.name):
                 continue
 
+            # build local meta for each container
+            self.local_cache[c.id] = self._build_context(c)
+
             filtered.append(c)
 
         logger.debug("Filter // Keeping containers: {}".format(filtered))
         return filtered
+
+    def _build_meta_from_event(self, event):
+
+        if event["id"] in self.local_cache:
+            return self.local_cache[event["id"]].copy()
+
+        try:
+            container = self.client.containers.get(event["id"])
+            meta = self._build_context(container)
+            return meta
+        except:
+            logger.exception("Could not find container {}".format(event["id"]))
+            # fallback
+
+            # Add all container/image information
+            meta = {
+                self.args.ns: {
+                    "id": event["id"],
+                    "short_id": event["id"][:12],
+                    "name": event["Actor"]["Attributes"]["name"],
+                    "daemon_name": self.daemon_name,
+                    "image": event["Actor"]["Attributes"]["image"]
+                },
+                "severity": "INFO"
+            }
+            return meta
