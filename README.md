@@ -10,7 +10,7 @@ This container as for unique option to pass the api key of your Logmatic.io's pl
 So to use the image available on docker hub simply run the following command:
 
 ```
-docker run -dt -v /var/run/docker.sock:/var/run/docker.sock logmatic/logmatic-docker <your_api_key>
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock logmatic/logmatic-docker <your_api_key>
 ```
 
 The mapping to the docker socket is really important as this is why we are able to identify all the running containers and follow their logs.
@@ -22,7 +22,7 @@ Nothing more to do.
 Several options are allowed after the api key.
 
 ```
-> usage: logmatic-docker [-h] [--logs] [--no-logs] [--stats] [--no-stats]
+> usage: logmatic-docker [-h] [--no-ssl] [--logs] [--no-logs] [--stats] [--no-stats]
                  [--no-detailed-stats] [--events] [--no-events] [--namespace NS]
                  [--hostname HOSTNAME] [--port PORT] [--debug] [-i INTERVAL]
                  [--attr ATTRS] [--docker-version VER] [--skipByImage REGEX]

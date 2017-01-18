@@ -16,6 +16,7 @@ internal_logger = logging.getLogger()
 # Args parser settings
 parser = argparse.ArgumentParser(prog="logmatic-docker", description='Send logs, events and stats to Logmatic.io')
 parser.add_argument("token", metavar="LOGMATIC_API_KEY", help='The Logmatic.io API key')
+parser.add_argument("--no-ssl", dest='ssl', action="store_false", help="Do not use ssl connection")
 parser.add_argument("--logs", dest='logs', action="store_true", help="Enable the logs streams")
 parser.add_argument('--no-logs', dest='logs', action="store_false", help="Disable the logs streams")
 parser.add_argument("--stats", dest='stats', action="store_true", help="Enable the stats streams")
@@ -43,7 +44,8 @@ parser.set_defaults(detailed_stats=True)
 parser.set_defaults(events=True)
 parser.set_defaults(ns="docker")
 parser.set_defaults(hostname="api.logmatic.io")
-parser.set_defaults(port=10514)
+parser.set_defaults(port=10515)
+parser.set_defaults(ssl=True)
 parser.set_defaults(interval=30)
 parser.set_defaults(attrs=[])
 parser.set_defaults(debug=False)
@@ -58,17 +60,19 @@ args = parser.parse_args()
 
 # Initialise the logger for Logmatic.io
 logmatic_logger = logging.getLogger("docker-logmatic")
-handler = logmatic.LogmaticHandler(args.token, host=args.hostname, port=args.port)
+handler = logmatic.LogmaticHandler(args.token, host=args.hostname, port=args.port, ssl=args.ssl)
 handler.setFormatter(logmatic.JsonFormatter(fmt="%(message)"))
 logmatic_logger.addHandler(handler)
 logmatic_logger.setLevel(logging.DEBUG)
+logmatic_logger.propagate = False
 
 if args.debug is True:
     internal_logger.setLevel(logging.DEBUG)
     sys_handler = logging.StreamHandler(sys.stderr)
     internal_logger.addHandler(sys_handler)
-
     internal_logger.debug(args)
+else:
+    internal_logger.disabled = True
 
 
 # Initialise the connection to the local daemon
