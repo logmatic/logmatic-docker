@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+import time
 
 logger = logging.getLogger()
 
@@ -20,7 +20,8 @@ class Calculator:
     def compute_human_stats(self, container, stats, detailed):
 
         # Add computed stats
-        tick = datetime.strptime(stats["read"][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
+
+        tick = int(time.time() * 1000)
 
         computed_stats = {
             "blkio_stats": {},
