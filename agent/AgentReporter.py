@@ -87,7 +87,7 @@ class AgentReporter:
             line = ""
             meta = self._build_context(container)
             meta["@marker"] = ["docker", "docker-logs"]
-            logs = container.logs(stream=True, follow=True, stdout=True, stderr=False, tail=0)
+            logs = container.logs(stream=True, follow=True, tail=0)
             for chunk in logs:
                 # Append all char into a string until a \n
                 if type(chunk) is not str:
