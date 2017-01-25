@@ -41,8 +41,8 @@ class AgentReporter:
                                              event["Actor"]["Attributes"]["image"]),
                                      extra=meta)
 
-        except Exception:
-            logger.exception("Unexpected error during the processing of events")
+        except Exception as e:
+            logger.exception("Unexpected error during the processing of events: {}".format(e))
 
     def export_stats(self, container, detailed):
         """Send container stats to Logmatic.io"""
@@ -76,8 +76,8 @@ class AgentReporter:
                                      meta[self.args.ns]["image"]),
                              extra=meta)
 
-        except Exception:
-            logger.exception("Unexpected error during the processing of stats")
+        except Exception as e:
+            logger.exception("Unexpected error during the processing of stats: {}".format(e))
 
     def export_logs(self, container):
         """Send all container logs to Logmatic.io"""
@@ -98,8 +98,8 @@ class AgentReporter:
                     self.logger.info(line, extra=meta)
                     line = ""
 
-        except Exception:
-            logger.exception("Unexpected error during the processing of stats")
+        except Exception as e:
+            logger.exception("Unexpected error during the processing of logs: {}".format(e))
 
     def _build_context(self, container):
         """Internal method, build the container context"""
@@ -137,8 +137,8 @@ class AgentReporter:
 
             return meta.copy()
 
-        except Exception:
-            logger.exception("Unexpected error during the processing of stats")
+        except Exception as e:
+            logger.exception("Unexpected error during the processing of context: {}".format(e))
 
     def filter(self, containers):
         """Expose only the containers and the images that match the rules set
