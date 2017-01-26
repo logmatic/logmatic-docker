@@ -91,7 +91,7 @@ class AgentReporter:
                     chunk = chunk.decode()
                     logger.debug("Decode needed:{}".format(chunk))
 
-                if chunk.endWith("\n"):
+                if chunk.endswith("\n"):
                     logger.debug("Concat done: {}".format(line))
                     self.logger.info(line, extra=meta)
                     line = ""
