@@ -80,9 +80,6 @@ class AgentReporter:
             logger.exception("Unexpected error during the processing of stats: {}".format(e))
 
     def export_logs(self, container):
-        """Send all container logs to Logmatic.io"""
-        if container.attrs["Config"]["Image"].startswith("logmatic/logmatic-docker"):
-            return
         try:
             line = ""
             meta = self._build_context(container)
@@ -150,6 +147,8 @@ class AgentReporter:
         filtered = []
 
         for c in containers:
+            if c.attrs["Config"]["Image"].startswith("logmatic/logmatic-docker"):
+                continue
             # skip container by image name
             if self.args.skip_image and re.search(self.args.skip_image, c.attrs["Config"]["Image"]):
                 continue
