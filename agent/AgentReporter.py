@@ -88,15 +88,15 @@ class AgentReporter:
             for chunk in logs:
                 # Append all char into a string until a \n
                 if type(chunk) is not str:
-                    logger.debug("Decode needed:{}".format(chunk))
                     chunk = chunk.decode()
-                if chunk is not '\n':
-                    line = line + chunk
-                else:
-                    logger.debug("Concat done: {}".format(line))
+                    logger.debug("Decode needed:{}".format(chunk))
 
+                if chunk.endWith("\n"):
+                    logger.debug("Concat done: {}".format(line))
                     self.logger.info(line, extra=meta)
                     line = ""
+                else:
+                    line = line + chunk
 
         except Exception as e:
             logger.exception("Unexpected error during the processing of logs: {}".format(e))
