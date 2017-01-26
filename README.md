@@ -1,6 +1,12 @@
 # logmatic-docker
 *Link to the [Logmatic.io documentation](http://doc.logmatic.io/docs/docker)*
 
+Releases and tags
+
+* `1.2`, `latest`: The official Logmatic.io image
+* `1.0` (*deprecated*): NodeJS docker client, not compatible with the Logmatic.io integration
+* `dev`: dev-build from the github repository
+
 The Logmatic.io's container finds all your running containers' logs, events and stats and stream them to your platform.
 
 # Use the image available on docker hub
@@ -10,7 +16,7 @@ This container as for unique option to pass the api key of your Logmatic.io's pl
 So to use the image available on docker hub simply run the following command:
 
 ```
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock logmatic/logmatic-docker <your_api_key>
+docker run -dt --name logmatic.io -v /var/run/docker.sock:/var/run/docker.sock:ro logmatic/logmatic-docker:1.2 <your_api_key>
 ```
 
 The mapping to the docker socket is really important as this is why we are able to identify all the running containers and follow their logs.
@@ -155,11 +161,8 @@ Docker stats are all the metrics that matters by container. And there are a lot 
         "status": "running",
         "pid": 7931,
         "id": "f307d28f60f4695e90bd108b3a3bbb6c9fbd4e896187966515b9d18d104f1730",
-        "human_stats": { 
-          //computed stats, display as percent or MB/s
-        },
         "stats": {
-          //raw stats,from the docker daemon
+          //raw stats and computed,from the docker daemon
         }
   }
 }
