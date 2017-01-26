@@ -86,17 +86,18 @@ class AgentReporter:
             meta["@marker"] = ["docker", "docker-logs"]
             logs = container.logs(stream=True, stderr=True, stdout=True, follow=True, tail=0)
             for chunk in logs:
+
                 # Append all char into a string until a \n
                 if type(chunk) is not str:
-                    chunk = chunk.decode()
                     logger.debug("Decode needed:{}".format(chunk))
+                    chunk = chunk.decode()
 
-                if chunk.endswith("\n"):
+                line = line + chunk
+                if line.endswith("\n"):
                     logger.debug("Concat done: {}".format(line))
                     self.logger.info(line, extra=meta)
                     line = ""
-                else:
-                    line = line + chunk
+
 
         except Exception as e:
             logger.exception("Unexpected error during the processing of logs: {}".format(e))
