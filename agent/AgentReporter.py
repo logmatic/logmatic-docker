@@ -88,10 +88,13 @@ class AgentReporter:
             for chunk in logs:
                 # Append all char into a string until a \n
                 if type(chunk) is not str:
+                    logger.debug("Decode needed:{}".format(chunk))
                     chunk = chunk.decode()
                 if chunk is not '\n':
                     line = line + chunk
                 else:
+                    logger.debug("Concat done: {}".format(line))
+
                     self.logger.info(line, extra=meta)
                     line = ""
 
