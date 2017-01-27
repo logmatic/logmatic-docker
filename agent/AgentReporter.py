@@ -33,6 +33,8 @@ class AgentReporter:
                     meta["@marker"] = ["docker", "docker-events"]
                     meta[self.args.ns]["event"] = event["Action"]
                     meta[self.args.ns]["status"] = event["status"]
+                    if "exitCode" in event["Actor"]["Attributes"]:
+                      meta[self.args.ns]["exit_code"] = event["Actor"]["Attributes"]["exitCode"]
 
                     # send it to Logmatic.io
                     self.logger.info("[Docker event] name:{} >> event:{} (image={})"
