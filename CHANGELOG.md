@@ -1,4 +1,4 @@
-# v2.0
+# v1.2
 
 Refactoring in order to use the official Docker Client Library (docker-py)
 Features:
@@ -63,7 +63,7 @@ Human stats example:
   }
 }
 ```
-# Migrating from v1.0 to v2.0
+# Migrating from v1.0 to v1.2
 The v2.0 is based on the official docker client python library.
 If, you are currently using the v1.0, here are the breaking changes:
 
