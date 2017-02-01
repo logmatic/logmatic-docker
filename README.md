@@ -28,8 +28,8 @@ Nothing more to do.
 Several options are allowed after the api key.
 
 ```
-> usage: logmatic-docker [-h] [--no-ssl] [--logs] [--no-logs] [--stats] [--no-stats]
-                 [--no-detailed-stats] [--events] [--no-events] [--namespace NS]
+> usage: logmatic-docker [-h] [--no-ssl] [--no-logs] [--no-stats]
+                 [--no-detailed-stats] [--no-events] [--namespace NS]
                  [--hostname HOSTNAME] [--port PORT] [--debug] [-i INTERVAL]
                  [--attr ATTRS] [--docker-version VER] [--skipByImage REGEX]
                  [--skipByName REGEX] [--matchByImage REGEX]
@@ -43,12 +43,9 @@ Several options are allowed after the api key.
   
   optional arguments:
     -h, --help            show this help message and exit
-    --logs                Enable the logs streams
     --no-logs             Disable the logs streams
-    --stats               Enable the stats streams
     --no-stats            Disable the stats streams
     --no-detailed-stats   Disable stats streams
-    --events              Enable the event stream
     --no-events           Disable the event stream
     --namespace NS        Default namespace
     --hostname HOSTNAME   Logmatic.io's hostname (default api.logmatic.io)
@@ -123,6 +120,7 @@ An NGINX log for instance would look like this:
 ```
 
 **NOTE about JSON logging:**
+
 If the container logs in JSON, the message field contains a valid JSON object. Logmatic.io will then parse it by default and you'll get all your attributes properly created at the root level in the user interface.
 
 ## Docker events
