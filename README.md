@@ -1,22 +1,29 @@
-# logmatic-docker
-*Link to the [Logmatic.io documentation](http://doc.logmatic.io/docs/docker)*
+# logmatic/logmatic-docker
 
-Releases and tags
+The logmatic-docker container finds all your running containers' logs, events and stats from all the running containers in the docker machine and streams it straight to your Logmatic.io's platform.
+Want help or try Logmatic.io?:
+ * Our documentation: [the Logmatic.io documentation page](http://doc.logmatic.io/docs/docker)*
+ * Our support team: [support@logmatic.io](mailto:support@logmatic.io)
+ * Our website: [https://logmatic.io](https://logmatic.io)
 
-* `1.2`, `latest`: The official Logmatic.io image
+## Releases and tags
+
+* `1.2`, `1.2.1`, `latest`: The official Logmatic.io image
 * `1.0` (*deprecated*): NodeJS docker client, not compatible with the Logmatic.io integration
 * `dev`: dev-build from the github repository
 
 The Logmatic.io's container finds all your running containers' logs, events and stats and stream them to your platform.
 
-# Use the image available on docker hub
+
+
+## Use the image available on docker hub
 
 This container as for unique option to pass the api key of your Logmatic.io's platform.
 
 So to use the image available on docker hub simply run the following command:
 
 ```
-docker run -dt --name logmatic.io -v /var/run/docker.sock:/var/run/docker.sock:ro logmatic/logmatic-docker:1.2 <your_api_key>
+docker run -dt --name logmatic.io -v /var/run/docker.sock:/var/run/docker.sock:ro logmatic/logmatic-docker:1.2 <YOUR_API_KEY>
 ```
 
 The mapping to the docker socket is really important as this is why we are able to identify all the running containers and follow their logs.
@@ -28,10 +35,10 @@ Nothing more to do.
 Several options are allowed after the api key.
 
 ```
-> usage: logmatic-docker [-h] [--no-ssl] [--logs] [--no-logs] [--stats] [--no-stats]
-                 [--no-detailed-stats] [--events] [--no-events] [--namespace NS]
+> usage: logmatic-docker [-h] [--no-ssl] [--no-logs] [--no-stats]
+                 [--no-detailed-stats] [--no-events] [--namespace NAMESPACE]
                  [--hostname HOSTNAME] [--port PORT] [--debug] [-i INTERVAL]
-                 [--attr ATTRS] [--docker-version VER] [--skipByImage REGEX]
+                 [--attr ATTRS] [--docker-version DAEMON_VERSION] [--skipByImage REGEX]
                  [--skipByName REGEX] [--matchByImage REGEX]
                  [--matchByName REGEX] [--matchByLabel LABEL]
                  LOGMATIC_API_KEY
@@ -43,20 +50,17 @@ Several options are allowed after the api key.
   
   optional arguments:
     -h, --help            show this help message and exit
-    --logs                Enable the logs streams
     --no-logs             Disable the logs streams
-    --stats               Enable the stats streams
     --no-stats            Disable the stats streams
     --no-detailed-stats   Disable stats streams
-    --events              Enable the event stream
     --no-events           Disable the event stream
-    --namespace NS        Default namespace
+    --namespace NAMESPACE        Default namespace
     --hostname HOSTNAME   Logmatic.io's hostname (default api.logmatic.io)
     --port PORT           Logmatic.io's port (default 10514)
     --debug               Enable debugging
     -i INTERVAL           Seconds between to stats report (default 30)
     --attr ATTRS          eg myattribute="my attribute"
-    --docker-version VER  Force the Docker version to use
+    --docker-version DAEMON_VERSION  Force the Docker version to use
     --skipByImage REGEX   Skip container by image name
     --skipByName REGEX    Skip container by container name
     --matchByImage REGEX  Match container by image name
@@ -68,6 +72,7 @@ Several options are allowed after the api key.
 ## Add extra attributes
 
 You can add extra attributes to all the pushed entries by chaining the option "--attr" or "-a".
+But, the good practice is to use container's labels instead.
 
 ## Match / Skip by name, image or label
 
@@ -109,20 +114,23 @@ An NGINX log for instance would look like this:
 {
     "message": "192.168.99.1 - - [15/Dec/2015:17:36:50 +0000] \"GET / HTTP/1.1\" 304 0 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36\" \"-\"",
     "docker": {
-      "image": "agileek/cpuset-test",
-      "hostname": "f307d28f60f4",
-      "daemon_name": "jarvis",
-      "created": "2016-12-21T15:04:27.6401807Z",
-      "name": "small_mahavira",
-      "id": "f307d28f60f4695e90bd108b3a3bbb6c9fbd4e896187966515b9d18d104f1730",
-      "short_id": "f307d28f60",
-      "status": "running",
-      "pid": 7931
-    }
+        "image": "agileek/logmatic-docker:latest",
+        "daemon_name": "jarvis",
+        "name": "grave_goldwasser",
+        "id": "47cb6e825ac07e56d6e7ed9ae82e1b7438a1850150013c3aff30eeecd0d86939",
+        "status": "running",
+        "hostname": "47cb6e825ac0",
+        "created": "2017-02-10T08:21:11.308113714Z",
+        "pid": 4505,
+        "short_id": "47cb6e825a"
+    },
+    "severity": "INFO",
+    "timestamp": "2017-02-10T08:21:14.258Z"
 }
 ```
 
 **NOTE about JSON logging:**
+
 If the container logs in JSON, the message field contains a valid JSON object. Logmatic.io will then parse it by default and you'll get all your attributes properly created at the root level in the user interface.
 
 ## Docker events
@@ -131,15 +139,21 @@ Docker events tells you the activity on your docker machine: create, kill, commi
 
 ```json
 {
-    "message": "[Docker event] name:distracted_archimedes >> event:attach (image=ubuntu)",
+    "message": "[Docker event] name:amazing_engelbart >> event:start (image=chentex/random-logger)",
     "docker": {
-      "image": "ubuntu",
-      "daemon_name": "jarvis",
-      "name": "distracted_archimedes",
-      "id": "65254830bfa3604f487d1603d509d45886f37f83412c4b18f809d148c5f60c4c",
-      "event": "attach",
-      "status": "attach"
-    }
+        "image": "chentex/random-logger",
+        "daemon_name": "jarvis",
+        "name": "amazing_engelbart",
+        "id": "fa755a06afb40f5e9657aaa4ed45e735b21826a5faee2737ce6ce0388b910d72",
+        "event": "start",
+        "status": "start",
+        "hostname": "fa755a06afb4",
+        "created": "2017-02-10T08:24:45.868923429Z",
+        "pid": 5213,
+        "short_id": "fa755a06af"
+    },
+    "severity": "INFO",
+    "timestamp": "2017-02-10T08:24:47.044Z"
 }
 ```
 
@@ -149,22 +163,23 @@ Docker stats are all the metrics that matters by container. And there are a lot 
 
 ```json
 {
-    "message": "[Docker stats] name:small_mahavira >>  cpu:199.59% mem:0.01% io:0.00MB/s net:0.00MB/s (host:f307d28f60f4 image:agileek/cpuset-test)",
-
+    "message": "[Docker stats] name:grave_goldwasser >>  cpu:0.11% mem:0.21% io:0.00MB/s net:0.00MB/s (host:47cb6e825ac0 image:logmatic/logmatic-docker:latest)",
     "docker": {
-        "image": "agileek/cpuset-test",
-        "hostname": "f307d28f60f4",
-        "created": "2016-12-21T15:04:27.6401807Z",
+        "image": "logmatic/logmatic-docker:latest",
         "daemon_name": "jarvis",
-        "name": "small_mahavira",
-        "short_id": "f307d28f60",
+        "name": "grave_goldwasser",
+        "id": "47cb6e825ac07e56d6e7ed9ae82e1b7438a1850150013c3aff30eeecd0d86939",
         "status": "running",
-        "pid": 7931,
-        "id": "f307d28f60f4695e90bd108b3a3bbb6c9fbd4e896187966515b9d18d104f1730",
+        "hostname": "47cb6e825ac0",
+        "created": "2017-02-10T08:21:11.308113714Z",
+        "pid": 4505,
+        "short_id": "47cb6e825a",
         "stats": {
           //raw stats and computed,from the docker daemon
         }
-  }
+    },
+    "severity": "INFO",
+    "timestamp": "2017-02-10T08:26:42.255Z"
 }
 ```
 
