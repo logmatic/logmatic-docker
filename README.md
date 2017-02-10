@@ -2,7 +2,7 @@
 
 The logmatic-docker container finds all your running containers' logs, events and stats from all the running containers in the docker machine and streams it straight to your Logmatic.io's platform.
 Want help or try Logmatic.io?:
- * Our documentation: [the Logmatic.io documentation page](http://doc.logmatic.io/docs/docker)*
+ * Our documentation: [the Logmatic.io documentation page](http://doc.logmatic.io/docs/docker)
  * Our support team: [support@logmatic.io](mailto:support@logmatic.io)
  * Our website: [https://logmatic.io](https://logmatic.io)
 
