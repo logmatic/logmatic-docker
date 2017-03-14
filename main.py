@@ -24,6 +24,7 @@ parser.add_argument('--no-events', dest='events', action="store_false", help="Di
 parser.add_argument("--namespace", dest='ns', help="Default namespace")
 parser.add_argument("--hostname", dest='hostname', help="Logmatic.io's hostname (default api.logmatic.io)")
 parser.add_argument("--port", dest='port', type=int, help="Logmatic.io's port (default 10514)")
+parser.add_argument("--timeout", dest='timeout', type=int, help="Timeout")
 parser.add_argument("--debug", dest="debug", action="store_true", help="Enable debugging")
 parser.add_argument("-i", dest='interval', type=int, help="Seconds between to stats report (default 30)")
 parser.add_argument("--attr", dest="attrs", action='append', help="eg my_attribute=\"my attribute\"")
@@ -52,6 +53,7 @@ parser.set_defaults(skip_image=None)
 parser.set_defaults(match_name=None)
 parser.set_defaults(match_image=None)
 parser.set_defaults(match_label=None)
+parser.set_defaults(timeout=120)
 
 args = parser.parse_args()
 
@@ -74,7 +76,7 @@ else:
 
 # Initialise the connection to the local daemon
 base_url = 'unix://var/run/docker.sock'
-client = docker.DockerClient(base_url=base_url, timeout=None, version=args.docker_version)
+client = docker.DockerClient(base_url=base_url, timeout=args.timeout, version=args.docker_version)
 
 # Main logic starts here
 agent = AgentReporter(client=client, logger=logmatic_logger, args=args)
