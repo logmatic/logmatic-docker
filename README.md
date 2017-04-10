@@ -8,7 +8,7 @@ Want help or try Logmatic.io?:
 
 ## Releases and tags
 
-* `1.2`, `1.2.1`, `latest`: The official Logmatic.io image
+* `1.2`, `1.2.2`, `latest`: The official Logmatic.io image
 * `1.0` (*deprecated*): NodeJS docker client, not compatible with the Logmatic.io integration
 * `dev`: dev-build from the github repository
 
@@ -57,6 +57,7 @@ Several options are allowed after the api key.
     --namespace NAMESPACE        Default namespace
     --hostname HOSTNAME   Logmatic.io's hostname (default api.logmatic.io)
     --port PORT           Logmatic.io's port (default 10514)
+    --timeout SEC         Set the timeout for docker client calls
     --debug               Enable debugging
     -i INTERVAL           Seconds between to stats report (default 30)
     --attr ATTRS          eg myattribute="my attribute"
