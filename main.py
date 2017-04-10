@@ -103,7 +103,10 @@ while 1:
 
         # Start all log threads, and check if they're alive each x seconds
         if args.logs is True or args.stats is True:
-            containers = client.containers.list(filters=filters)
+            try:
+                containers = client.containers.list(filters=filters)
+            except Exception as e:
+                internal_logger.exception("Unexpected error during the listing of the containers: {}".format(e))
             containers_filtered = agent.filter(containers)
             for container in containers_filtered:
                 # Start threads and check if each logging thread are alive
